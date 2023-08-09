@@ -1,0 +1,46 @@
+version: '3.4'
+
+networks:
+  laravel:
+
+services:
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php-laravel
+    restart: always
+    depends_on:
+      - mysql
+    volumes:
+      - ./src:/app
+      - ./conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini
+    ports:
+      - "8088:80"
+    networks:
+      - laravel
+    environment:
+      - PHP_TIMEZONE=UTC
+      - MYSQL_USERNAME=admin
+      - MYSQL_PASSWORD=secret
+      - MYSQL_DB_NAME=laravel
+      - MYSQL_HOST_NAME=mysql
+      - XDEBUG_CONFIG=remote_host=172.17.0.1
+      - PHP_MAX_INPUT_VARS=3000
+  mysql:
+    image: mariadb:10.5
+    container_name: mysql-laravel
+    restart: always
+    ports:
+      - "4306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment: 
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - laravel
+
